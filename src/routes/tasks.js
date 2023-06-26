@@ -4,11 +4,12 @@ const router = express.Router()
 const tasks = []
 
 
-function validIfExistsTask(req, res, next){
+function validIfExistsTask(req, res, next) {
     const { id } = req.params;
-    const task = tasks.find(t => t.id === id);
 
-    if (!task) {
+    res.locals.task = tasks.find(t => t.id === id);
+
+    if (!res.locals.task) {
         return res.status(400).json({ error: "Task not found" })
     }
 
@@ -34,9 +35,7 @@ router.get('/', (req, res) => {
 })
 
 router.get('/:id', validIfExistsTask, (req, res) => {
-
-    const task = validIfExistsTask.task
-
+    const task = res.locals.task;
     return res.send(task)
 })
 
@@ -58,18 +57,20 @@ router.post('/', (req, res) => {
 })
 
 router.put('/:id', validIfExistsTask, (req, res) => {
-    const { id } = req.params;
-    const { account } = req.headers;
-    const { description, appointment} = req.body;
+    const { description, appointment } = req.body;
+    const task = res.locals.task;
 
-    res.send()
+    task.description = description;
+    task.appointment = appointment;
 
+    tasks.push(task)
 
+    return res.status(200).json(task)
 })
 
 router.delete('/:id', validIfExistsTask, (req, res) => {
-    res.send('Got a DELETE request at /user')
+    tasks.splice(res.locals.task, 1);
+    return res.status(204).send();
 })
-
 
 module.exports = router
