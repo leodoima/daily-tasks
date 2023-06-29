@@ -1,6 +1,7 @@
-const express = require('express')
+const { Router } = require('express')
 const { v4: uuidv4 } = require('uuid');
-const router = express.Router()
+
+const tasksRoutes = Router()
 const tasks = []
 
 
@@ -17,7 +18,7 @@ function validIfExistsTask(req, res, next) {
 };
 
 
-router.use((req, res, next) => {
+tasksRoutes.use((req, res, next) => {
     const { account } = req.headers;
 
     console.log(`[${req.method}] - ${req.path} ${Date.now()}`)
@@ -30,16 +31,16 @@ router.use((req, res, next) => {
 })
 
 
-router.get('/', (req, res) => {
+tasksRoutes.get('/', (req, res) => {
     return res.send(tasks)
 })
 
-router.get('/:id', validIfExistsTask, (req, res) => {
+tasksRoutes.get('/:id', validIfExistsTask, (req, res) => {
     const task = res.locals.task;
     return res.send(task)
 })
 
-router.post('/', (req, res) => {
+tasksRoutes.post('/', (req, res) => {
     const { description, appointment } = req.body;
     const { account } = req.headers;
 
@@ -56,7 +57,7 @@ router.post('/', (req, res) => {
     return res.status(201).json(task)
 })
 
-router.put('/:id', validIfExistsTask, (req, res) => {
+tasksRoutes.put('/:id', validIfExistsTask, (req, res) => {
     const { description, appointment } = req.body;
     const task = res.locals.task;
 
@@ -68,9 +69,10 @@ router.put('/:id', validIfExistsTask, (req, res) => {
     return res.status(200).json(task)
 })
 
-router.delete('/:id', validIfExistsTask, (req, res) => {
+tasksRoutes.delete('/:id', validIfExistsTask, (req, res) => {
     tasks.splice(res.locals.task, 1);
     return res.status(204).send();
 })
 
-module.exports = router
+
+module.exports = tasksRoutes
